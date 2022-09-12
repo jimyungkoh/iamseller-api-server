@@ -7,15 +7,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { CountryEntity as Country } from '../../countries/entities/country.entity';
+import { OrderStatus } from './order.status';
 
-export type OrderStatus =
-  | '결제완료'
-  | '결제취소'
-  | '배송중'
-  | '배송완료'
-  | '구매확정'
-  | '교환'
-  | '환불';
+type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
 
 @Entity('order')
 export class OrderEntity {
@@ -24,15 +18,7 @@ export class OrderEntity {
 
   @Column({
     type: 'enum',
-    enum: [
-      '결제완료',
-      '결제취소',
-      '배송중',
-      '배송완료',
-      '구매확정',
-      '교환',
-      '환불',
-    ],
+    enum: OrderStatus,
     default: '결제완료',
   })
   status: OrderStatus;
