@@ -34,7 +34,7 @@ export class OrderEntity {
   buyrCity: string;
 
   @Column({ nullable: false })
-  buyrCounty: string;
+  buyrCountry: string;
 
   @Column({ nullable: false })
   buyrZipx: string;
