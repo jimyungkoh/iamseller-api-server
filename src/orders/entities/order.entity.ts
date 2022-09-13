@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { CountryEntity as Country } from '../../countries/entities/country.entity';
+import { CouponEntity as Coupon } from '../../coupons/entities/coupon.entity';
 import { OrderStatus } from './order.status';
 
 type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
@@ -41,10 +42,15 @@ export class OrderEntity {
   @Column({ nullable: false })
   vscode: string;
 
-  @ManyToOne(() => Country, (country) => country.deliveryFee, {
+  @ManyToOne(() => Country, (country) => country.orders, {
     nullable: false,
   })
   country: Country;
+
+  @ManyToOne(() => Coupon, (coupon) => coupon.orders, {
+    nullable: true,
+  })
+  coupon: Coupon;
 
   @CreateDateColumn({
     type: 'timestamp',
