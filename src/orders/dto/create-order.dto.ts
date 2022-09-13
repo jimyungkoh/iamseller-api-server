@@ -22,7 +22,7 @@ export class CreateOrderDto {
 
   @IsString()
   @IsNotEmpty()
-  buyrCounty: string;
+  buyrCountry: string;
 
   @IsString()
   buyrZipx: string;

@@ -17,11 +17,25 @@ export class OrdersService {
     private deliveryFeeService: DeliveryFeeService
   ) {}
 
+  async findAll(page = 1) {
+    const take = 20;
+
+    return await this.ordersRepository
+      .createQueryBuilder('order')
+      .select('order.id')
+      .addSelect('order.status')
+      .addSelect('order.price')
+      .addSelect('order.buyrCountry')
+      .take(take)
+      .skip(take * (page - 1))
+      .getMany();
+  }
+
   async create(
     createOrderDto: CreateOrderDto
   ): Promise<CreateOrderDto | undefined> {
     const country = await this.countryRepository.findOneBy({
-      countryCode: createOrderDto.buyrCounty,
+      countryCode: createOrderDto.buyrCountry,
     });
 
     console.log(country.id);
