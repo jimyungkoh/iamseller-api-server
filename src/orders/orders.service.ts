@@ -1,10 +1,17 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderEntity } from './entities/order.entity';
 import { Repository } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { DeliveryFeeService } from '../deliveryFee/deliveryFee.service';
 import { CountryEntity } from '../countries/entities/country.entity';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { OrderStatus } from './entities/order.status';
 
 @Injectable()
 export class OrdersService {
@@ -16,6 +23,25 @@ export class OrdersService {
     @Inject(DeliveryFeeService)
     private deliveryFeeService: DeliveryFeeService
   ) {}
+
+  async create(
+    createOrderDto: CreateOrderDto
+  ): Promise<CreateOrderDto | undefined> {
+    const country = await this.countryRepository.findOneBy({
+      countryCode: createOrderDto.buyrCountry,
+    });
+
+    console.log(country.id);
+
+    const deliveryFee = await this.deliveryFeeService.getDeliveryFee(
+      country,
+      createOrderDto.quantity
+    );
+
+    console.log(deliveryFee);
+
+    return createOrderDto;
+  }
 
   async findAll(page = 1) {
     const take = 20;
@@ -45,22 +71,28 @@ export class OrdersService {
     return post;
   }
 
-  async create(
-    createOrderDto: CreateOrderDto
-  ): Promise<CreateOrderDto | undefined> {
-    const country = await this.countryRepository.findOneBy({
-      countryCode: createOrderDto.buyrCountry,
-    });
+  async updateOrderStatus(
+    id: number,
+    updateOrderStatusDto: UpdateOrderStatusDto
+  ) {
+    const order = await this.ordersRepository.findOneBy({ id: id });
 
-    console.log(country.id);
+    if (!order) {
+      throw new NotFoundException();
+    }
 
-    const deliveryFee = await this.deliveryFeeService.getDeliveryFee(
-      country,
-      createOrderDto.quantity
-    );
+    if (!(updateOrderStatusDto.status in OrderStatus)) {
+      throw new BadRequestException();
+    }
 
-    console.log(deliveryFee);
+    if (updateOrderStatusDto.status === OrderStatus.구매확정) {
+      order.endedAt = new Date();
+    }
 
-    return createOrderDto;
+    order.status = updateOrderStatusDto.status;
+
+    await this.ordersRepository.save(order);
+
+    return order;
   }
 }
