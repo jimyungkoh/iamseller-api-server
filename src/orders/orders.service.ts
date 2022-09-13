@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderEntity } from './entities/order.entity';
 import { Repository } from 'typeorm';
@@ -29,6 +29,20 @@ export class OrdersService {
       .take(take)
       .skip(take * (page - 1))
       .getMany();
+  }
+
+  async findOne(id: number) {
+    const post = await this.ordersRepository.findOneBy({ id: id });
+
+    if (!post) {
+      throw new NotFoundException();
+    }
+
+    if (!post.endedAt) {
+      delete post.endedAt;
+    }
+
+    return post;
   }
 
   async create(
