@@ -2,35 +2,51 @@ import { CountryEntity as Country } from '../../countries/entities/country.entit
 import { CouponEntity as Coupon } from '../../coupons/entities/coupon.entity';
 import { OrderStatus } from '../entities/order.status';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { Exclude } from 'class-transformer';
 
 type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
 
 export class CreateOrderDto {
-  @IsString()
-  status: OrderStatus;
+  readonly status: OrderStatus;
 
   @IsNumber()
   @IsNotEmpty()
-  quantity: number;
+  readonly quantity: number;
 
   @IsNumber()
   @IsNotEmpty()
-  price: number;
+  readonly price: number;
 
-  @IsString()
-  buyrCity: string;
+  deliveryFee: number;
 
-  @IsString()
-  @IsNotEmpty()
-  buyrCountry: string;
+  discountPrice?: number = 0;
 
-  @IsString()
-  buyrZipx: string;
+  total: number;
 
   @IsString()
   @IsNotEmpty()
-  vscode: string;
+  readonly buyrName: string;
 
   @IsString()
+  readonly buyrCity: string;
+
+  @IsString()
+  @IsNotEmpty()
+  readonly buyrCountry: string;
+
+  @IsString()
+  readonly buyrZipx: string;
+
+  @IsString()
+  @IsNotEmpty()
+  readonly vscode: string;
+
+  @IsString()
+  couponCode: string;
+
+  @Exclude()
+  country: Country;
+
+  @Exclude()
   coupon: Coupon;
 }

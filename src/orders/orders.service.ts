@@ -12,7 +12,8 @@ import { DeliveryFeeService } from '../deliveryFee/deliveryFee.service';
 import { CountryEntity } from '../countries/entities/country.entity';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrderStatus } from './entities/order.status';
-import { faker } from '@faker-js/faker';
+import { CurrencyService } from '../currency/currency.service';
+import { CouponsService } from '../coupons/coupons.service';
 
 @Injectable()
 export class OrdersService {
@@ -22,24 +23,58 @@ export class OrdersService {
     @InjectRepository(CountryEntity)
     private countryRepository: Repository<CountryEntity>,
     @Inject(DeliveryFeeService)
-    private deliveryFeeService: DeliveryFeeService
+    private deliveryFeeService: DeliveryFeeService,
+    @Inject(CurrencyService)
+    private currencyService: CurrencyService,
+    @Inject(CouponsService)
+    private couponService: CouponsService
   ) {}
 
-  async create(
-    createOrderDto: CreateOrderDto
-  ): Promise<CreateOrderDto | undefined> {
+  async create(createOrderDto: CreateOrderDto): Promise<CreateOrderDto> {
     const country = await this.countryRepository.findOneBy({
       countryCode: createOrderDto.buyrCountry,
     });
 
-    console.log(country.id);
+    createOrderDto.country = country;
 
-    const deliveryFee = await this.deliveryFeeService.getDeliveryFee(
+    let deliveryFee = await this.deliveryFeeService.getDeliveryFee(
       country,
       createOrderDto.quantity
     );
 
-    console.log(deliveryFee);
+    if (createOrderDto.buyrCountry !== 'KR') {
+      deliveryFee = await this.currencyService.exchangeToDollar(deliveryFee);
+    }
+
+    createOrderDto.deliveryFee = deliveryFee;
+
+    let coupon;
+
+    if (!!createOrderDto.couponCode) {
+      coupon = await this.couponService.findOneByCode(
+        createOrderDto.couponCode
+      );
+
+      const discountPrice = await this.couponService.getDiscountPrice(
+        coupon,
+        createOrderDto
+      );
+
+      delete createOrderDto.couponCode;
+      createOrderDto.coupon = coupon;
+      createOrderDto.discountPrice = discountPrice;
+    }
+
+    createOrderDto.total =
+      createOrderDto.price +
+      createOrderDto.deliveryFee -
+      createOrderDto.discountPrice;
+
+    const order = await this.ordersRepository.save(createOrderDto);
+
+    if (!!coupon) {
+      await this.couponService.updateCouponQuantities(coupon);
+    }
 
     return createOrderDto;
   }
