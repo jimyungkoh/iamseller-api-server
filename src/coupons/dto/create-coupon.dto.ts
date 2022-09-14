@@ -6,7 +6,6 @@ import {
   IsString,
 } from 'class-validator';
 import { CouponType } from '../entities/coupon.type';
-import { CouponsService } from '../coupons.service';
 
 type CouponType = typeof CouponType[keyof typeof CouponType];
 

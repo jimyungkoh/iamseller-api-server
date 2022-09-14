@@ -1,16 +1,21 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CouponEntity } from './entities/coupon.entity';
+import { CouponEntity as Coupon } from './entities/coupon.entity';
 import { Repository } from 'typeorm';
-import { OrderStatus } from '../orders/entities/order.status';
 import { CouponType } from './entities/coupon.type';
+import { UpdateCouponDto } from './dto/update-coupon.dto';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class CouponsService {
   constructor(
-    @InjectRepository(CouponEntity)
-    private couponRepository: Repository<CouponEntity>
+    @InjectRepository(Coupon)
+    private couponRepository: Repository<Coupon>
   ) {}
 
   async create(
@@ -30,5 +35,61 @@ export class CouponsService {
     }
 
     return this.couponRepository.save(createCouponDto);
+  }
+
+  async findAll(page = 1): Promise<Coupon[] | undefined> {
+    const take = 20;
+
+    return await this.couponRepository
+      .createQueryBuilder('coupon')
+      .select('coupon.id')
+      .addSelect('coupon.type')
+      .addSelect('coupon.use')
+      .addSelect('coupon.remains')
+      .take(take)
+      .skip(take * (page - 1))
+      .getMany();
+  }
+
+  async findOne(id: number): Promise<Coupon | undefined> {
+    const coupon = await this.couponRepository.findOneBy({ id: id });
+
+    if (!coupon) {
+      throw new NotFoundException();
+    }
+
+    return coupon;
+  }
+
+  async update(
+    id: number,
+    updateCouponDto: UpdateCouponDto
+  ): Promise<Coupon | undefined> {
+    let coupon = await this.couponRepository.findOneBy({ id: id });
+
+    if (!coupon) {
+      throw new NotFoundException();
+    }
+
+    coupon = Object.assign(
+      coupon,
+      Object.fromEntries(
+        Object.entries(updateCouponDto).filter(([, value]) => !!value)
+      )
+    );
+
+    await this.couponRepository.save(coupon);
+
+    return coupon;
+  }
+
+  async delete(id: number): Promise<boolean | undefined> {
+    const coupon = await this.couponRepository.findOneBy({ id: id });
+
+    if (!coupon) {
+      throw new NotFoundException();
+    }
+
+    return (await this.couponRepository.delete({ id: id })) && true;
   }
 }
