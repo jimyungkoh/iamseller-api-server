@@ -22,6 +22,9 @@ export class CouponEntity {
   type: CouponType;
 
   @Column({ nullable: false })
+  value: number;
+
+  @Column({ nullable: false })
   amount: number;
 
   @Column({ nullable: false, default: 0 })
