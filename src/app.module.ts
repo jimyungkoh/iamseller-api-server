@@ -5,14 +5,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeormService } from './database';
 import { OrdersModule } from './orders/orders.module';
 import { DeliveryFeeModule } from './deliveryFee/deliveryFee.module';
-import { CouponsController } from './coupons/coupons.controller';
 import { CouponsModule } from './coupons/coupons.module';
+import { CurrencyModule } from './currency/currency.module';
 
 @Module({
   imports: [
     OrdersModule,
     DeliveryFeeModule,
     CouponsModule,
+    CurrencyModule,
     TypeOrmModule.forRootAsync({
       useClass: TypeormService,
     }),

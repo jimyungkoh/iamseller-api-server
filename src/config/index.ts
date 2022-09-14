@@ -45,9 +45,15 @@ const TYPEORM = environment[NODE_ENV];
 const TYPEORM_SEEDING_SEEDS = env.TYPEORM_SEEDING_SEEDS;
 const TYPEORM_SEEDING_FACTORIES = env.TYPEORM_SEEDING_FACTORIES;
 
+// Exchange Rate API
+const EXCHANGE_API_KEY = env.EXCHANGE_API_KEY;
+const EXCHANGE_DATA = 'AP01';
+const EXCHANGE_URL = `https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=${EXCHANGE_API_KEY}&data=${EXCHANGE_DATA}`;
+
 export {
   TYPEORM,
   BCRYPT_SALT,
   TYPEORM_SEEDING_SEEDS,
   TYPEORM_SEEDING_FACTORIES,
+  EXCHANGE_URL,
 };
