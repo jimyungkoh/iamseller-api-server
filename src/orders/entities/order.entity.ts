@@ -9,6 +9,7 @@ import {
 import { CountryEntity as Country } from '../../countries/entities/country.entity';
 import { CouponEntity as Coupon } from '../../coupons/entities/coupon.entity';
 import { OrderStatus } from './order.status';
+import { ColdObservable } from 'rxjs/internal/testing/ColdObservable';
 
 type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
 
@@ -29,6 +30,9 @@ export class OrderEntity {
 
   @Column({ nullable: false })
   price: number;
+
+  @Column({ nullable: true })
+  buyrName: string;
 
   @Column({ nullable: false })
   buyrCity: string;

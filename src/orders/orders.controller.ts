@@ -21,7 +21,11 @@ export class OrdersController {
   }
 
   @Get()
-  findAll(@Query() { page }) {
+  findAll(@Query() { name, page }) {
+    if (!!name) {
+      return this.ordersService.findByName(name, page);
+    }
+
     return this.ordersService.findAll(page);
   }
 
