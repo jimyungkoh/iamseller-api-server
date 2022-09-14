@@ -5,11 +5,11 @@ import {
 } from '@nestjs/common';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CouponEntity as Coupon } from './entities/coupon.entity';
+import { CouponEntity, CouponEntity as Coupon } from './entities/coupon.entity';
 import { Repository } from 'typeorm';
 import { CouponType } from './entities/coupon.type';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
-import { firstValueFrom } from 'rxjs';
+import { CreateOrderDto } from '../orders/dto/create-order.dto';
 
 @Injectable()
 export class CouponsService {
@@ -61,6 +61,45 @@ export class CouponsService {
     return coupon;
   }
 
+  async findOneByCode(couponCode: string) {
+    const coupon = await this.couponRepository.findOneBy({
+      code: couponCode,
+    });
+
+    if (!coupon) {
+      throw new NotFoundException();
+    }
+
+    return coupon;
+  }
+
+  async getDiscountPrice(
+    coupon: CouponEntity,
+    order: CreateOrderDto
+  ): Promise<number | undefined> {
+    if (coupon.international && order.buyrCountry === 'KR') {
+      throw new BadRequestException(
+        `International coupon not valid for ${order.buyrCountry}`
+      );
+    } else if (!coupon.international && order.buyrCountry !== 'KR') {
+      throw new BadRequestException(
+        `National coupon not valid for ${order.buyrCountry}`
+      );
+    }
+
+    if (coupon.type === CouponType.delivery) {
+      return order.deliveryFee;
+    } else if (coupon.type === CouponType.fixed) {
+      return order.price <= coupon.value ? order.price : coupon.value;
+    }
+
+    const rateDiscountPrice =
+      Math.round((order.price * (coupon.value / 100) + Number.EPSILON) * 100) /
+      100;
+
+    return rateDiscountPrice >= order.price ? order.price : rateDiscountPrice;
+  }
+
   async update(
     id: number,
     updateCouponDto: UpdateCouponDto
@@ -81,6 +120,19 @@ export class CouponsService {
     await this.couponRepository.save(coupon);
 
     return coupon;
+  }
+
+  async updateCouponQuantities(coupon: Coupon): Promise<boolean | undefined> {
+    const couponEntity = await this.couponRepository.findOne({
+      relations: ['orders'],
+      select: ['orders'],
+      where: { id: coupon.id },
+    });
+
+    couponEntity.use = couponEntity.orders.length;
+    couponEntity.remains = couponEntity.amount - couponEntity.use;
+
+    return (await this.couponRepository.save(couponEntity)) && true;
   }
 
   async delete(id: number): Promise<boolean | undefined> {

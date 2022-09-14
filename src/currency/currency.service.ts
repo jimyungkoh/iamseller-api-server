@@ -52,8 +52,6 @@ export class CurrencyService {
 
     const { data } = await firstValueFrom(this.httpService.get(EXCHANGE_URL));
 
-    console.log(data);
-
     let wonPerDollar;
 
     /**

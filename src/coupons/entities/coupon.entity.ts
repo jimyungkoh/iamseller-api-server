@@ -15,11 +15,14 @@ export class CouponEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   code: string;
 
   @Column({ type: 'enum', enum: CouponType, nullable: false })
   type: CouponType;
+
+  @Column({ type: 'boolean', nullable: false })
+  international: boolean;
 
   @Column({ nullable: false })
   value: number;
@@ -32,6 +35,9 @@ export class CouponEntity {
 
   @Column({ nullable: false })
   remains: number;
+
+  @Column({ nullable: false, default: 0 })
+  totalDiscountAmount: number;
 
   @CreateDateColumn({
     type: 'timestamp',

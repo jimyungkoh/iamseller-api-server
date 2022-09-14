@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsDate,
   IsEnum,
   IsNotEmpty,
@@ -15,21 +16,23 @@ export class CreateCouponDto {
   code: string;
 
   @IsEnum(CouponType)
-  @IsNotEmpty()
   type: CouponType;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  international: boolean;
 
   @IsNotEmpty()
   value: number;
 
+  totalDiscountAmount?: number = 0;
+
   @IsNotEmpty()
   amount: number;
 
-  @IsNumber()
-  use: number;
+  use?: number = 0;
 
-  @IsNumber()
   remains: number;
 
-  @IsDate()
   expirationDate: Date;
 }

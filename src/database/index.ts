@@ -9,7 +9,7 @@ export class TypeormService implements TypeOrmOptionsFactory {
     return {
       ...TYPEORM,
       namingStrategy: new SnakeNamingStrategy(),
-      // synchronize: true,
+      synchronize: true,
       entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
       // logging: true,
     };
