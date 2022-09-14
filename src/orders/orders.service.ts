@@ -35,6 +35,12 @@ export class OrdersService {
       countryCode: createOrderDto.buyrCountry,
     });
 
+    if (!country) {
+      throw new NotFoundException(
+        `country ${createOrderDto.country} doesn't exist in countries`
+      );
+    }
+
     createOrderDto.country = country;
 
     let deliveryFee = await this.deliveryFeeService.getDeliveryFee(
@@ -70,7 +76,7 @@ export class OrdersService {
       createOrderDto.deliveryFee -
       createOrderDto.discountPrice;
 
-    const order = await this.ordersRepository.save(createOrderDto);
+    await this.ordersRepository.save(createOrderDto);
 
     if (!!coupon) {
       await this.couponService.updateCouponQuantities(coupon);
@@ -86,7 +92,7 @@ export class OrdersService {
       .createQueryBuilder('order')
       .select('order.id')
       .addSelect('order.status')
-      .addSelect('order.price')
+      .addSelect('order.total')
       .addSelect('order.buyrName')
       .addSelect('order.buyrCountry')
       .take(take)
@@ -95,17 +101,17 @@ export class OrdersService {
   }
 
   async findOne(id: number) {
-    const post = await this.ordersRepository.findOneBy({ id: id });
+    const order = await this.ordersRepository.findOneBy({ id: id });
 
-    if (!post) {
-      throw new NotFoundException();
+    if (!order) {
+      throw new NotFoundException(`${id} doesn't exist in orders`);
     }
 
-    if (!post.endedAt) {
-      delete post.endedAt;
+    if (!order.endedAt) {
+      delete order.endedAt;
     }
 
-    return post;
+    return order;
   }
 
   async findByName(name: string, page = 1) {
@@ -127,7 +133,7 @@ export class OrdersService {
     const order = await this.ordersRepository.findOneBy({ id: id });
 
     if (!order) {
-      throw new NotFoundException();
+      throw new NotFoundException(`${id} doesn't exist in orders`);
     }
 
     if (!(updateOrderStatusDto.status in OrderStatus)) {

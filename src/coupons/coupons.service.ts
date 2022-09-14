@@ -22,7 +22,13 @@ export class CouponsService {
     createCouponDto: CreateCouponDto
   ): Promise<CreateCouponDto | undefined> {
     if (!(createCouponDto.type in CouponType)) {
-      throw new BadRequestException();
+      throw new BadRequestException(
+        `${createCouponDto.type} is not valid type`
+      );
+    }
+
+    if (await this.findOneByCode(createCouponDto.code)) {
+      throw new BadRequestException(`Coupon's code should be 'unique'`);
     }
 
     createCouponDto.use = 0;
@@ -55,7 +61,7 @@ export class CouponsService {
     const coupon = await this.couponRepository.findOneBy({ id: id });
 
     if (!coupon) {
-      throw new NotFoundException();
+      throw new NotFoundException(`${id} doesn't exist in coupons`);
     }
 
     return coupon;
@@ -107,7 +113,7 @@ export class CouponsService {
     let coupon = await this.couponRepository.findOneBy({ id: id });
 
     if (!coupon) {
-      throw new NotFoundException();
+      throw new NotFoundException(`${id} doesn't exist in coupons`);
     }
 
     coupon = Object.assign(
@@ -139,7 +145,7 @@ export class CouponsService {
     const coupon = await this.couponRepository.findOneBy({ id: id });
 
     if (!coupon) {
-      throw new NotFoundException();
+      throw new NotFoundException(`${id} doesn't exist in coupons`);
     }
 
     return (await this.couponRepository.delete({ id: id })) && true;
