@@ -21,7 +21,7 @@ export class DeliveryFeeService {
 
     if (!delivery) {
       throw new NotFoundException(
-        'The requested URL was not found on this server.'
+        `country ${country.countryCode} or quantity ${quantity} isn't in the deliveryFee table`
       );
     }
 
