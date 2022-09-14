@@ -12,6 +12,7 @@ import { DeliveryFeeService } from '../deliveryFee/deliveryFee.service';
 import { CountryEntity } from '../countries/entities/country.entity';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrderStatus } from './entities/order.status';
+import { faker } from '@faker-js/faker';
 
 @Injectable()
 export class OrdersService {
@@ -51,6 +52,7 @@ export class OrdersService {
       .select('order.id')
       .addSelect('order.status')
       .addSelect('order.price')
+      .addSelect('order.buyrName')
       .addSelect('order.buyrCountry')
       .take(take)
       .skip(take * (page - 1))
@@ -69,6 +71,18 @@ export class OrdersService {
     }
 
     return post;
+  }
+
+  async findByName(name: string, page = 1) {
+    const take = 20;
+
+    return await this.ordersRepository
+      .createQueryBuilder('order')
+      .where('order.buyrName like :name', { name: `%${name}%` })
+      .take(20)
+      .take(take)
+      .skip(take * (page - 1))
+      .getMany();
   }
 
   async updateOrderStatus(
