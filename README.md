@@ -1,4 +1,4 @@
-# 🌊 iamseller api server will be coming soon! 🌊
+# [🌊 iamseller api server out now! 🌊](https://iamseller-api-server-jajtf.ondigitalocean.app/api-docs)
 
 ## 기술 스택과 브랜치 전략
 
