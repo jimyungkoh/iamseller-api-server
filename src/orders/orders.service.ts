@@ -120,7 +120,11 @@ export class OrdersService {
     return await this.ordersRepository
       .createQueryBuilder('order')
       .where('order.buyrName like :name', { name: `%${name}%` })
-      .take(20)
+      .select('order.id')
+      .addSelect('order.status')
+      .addSelect('order.total')
+      .addSelect('order.buyrName')
+      .addSelect('order.buyrCountry')
       .take(take)
       .skip(take * (page - 1))
       .getMany();
