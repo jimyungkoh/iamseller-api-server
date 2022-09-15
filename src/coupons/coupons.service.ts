@@ -27,9 +27,11 @@ export class CouponsService {
       );
     }
 
-    if (await this.findOneByCode(createCouponDto.code)) {
-      throw new BadRequestException(`Coupon's code should be 'unique'`);
-    }
+    try {
+      if (!!(await this.findOneByCode(createCouponDto.code))) {
+        throw new BadRequestException(`Coupon's code should be 'unique'`);
+      }
+    } catch (e) {}
 
     createCouponDto.use = 0;
     createCouponDto.remains = createCouponDto.amount;

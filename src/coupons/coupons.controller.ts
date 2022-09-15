@@ -30,8 +30,8 @@ export class CouponsController {
     description:
       "${createCouponDto.type} is not valid type | Coupon's code should be 'unique'",
   })
-  create(@Body() createCouponDto: CreateCouponDto) {
-    return this.couponsService.create(createCouponDto);
+  async create(@Body() createCouponDto: CreateCouponDto) {
+    return await this.couponsService.create(createCouponDto);
   }
 
   @Get()
