@@ -1,4 +1,4 @@
-# 🌊 iamseller api server out nowww! 🌊
+# 🌊 iamseller api server will be coming soon! 🌊
 
 ## 기술 스택과 브랜치 전략
 
