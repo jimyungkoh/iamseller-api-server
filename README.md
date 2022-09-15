@@ -6,7 +6,7 @@
 
 ## ERD
 
-![erd](https://user-images.githubusercontent.com/30682847/190288705-80869104-1336-4169-bed3-7e456e02520c.png)
+![erd](https://user-images.githubusercontent.com/30682847/190328676-be9ed859-bb36-4eb5-8705-ff6285c24d5d.png)
 
 ## 프로젝트 특징
 - [좋은 개발 습관을 가지려 부단히 노력하였습니다 💦](https://github.com/users/jimyungkoh/projects/6)
